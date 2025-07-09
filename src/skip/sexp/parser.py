@@ -370,9 +370,16 @@ class ParsedValue(AccessesTree):
             new_loc.append(set_rot)
         
         self.at.value = new_loc
-        for child in self.children:
-            if hasattr(child, 'translation'):
-                child.translation(by_x, by_y)
+        # Only skip recursion for PCB footprints (entity_type == 'footprint' or class name contains 'Footprint')
+        is_pcb_footprint = False
+        if hasattr(self, 'entity_type') and str(self.entity_type).lower() == 'footprint':
+            is_pcb_footprint = True
+        elif self.__class__.__name__.lower().startswith('footprint'):
+            is_pcb_footprint = True
+        if not is_pcb_footprint:
+            for child in self.children:
+                if hasattr(child, 'translation'):
+                    child.translation(by_x, by_y)
          
     def _parseTree(self, tree):
         if not isinstance(tree, list):
